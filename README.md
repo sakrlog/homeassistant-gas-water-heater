@@ -19,19 +19,20 @@ This project employs an ESPHome-controlled servo motor connected to the gas wate
 
 **Hardware:**
 
-* **Gas water heater:**\
+1. Gas water heater\
  <img src="images/gas-water-heater.jpg" alt="gas-water-heater" width="200"/>
-* **Servo motor:** 15kg+ torque, 100°+ rotation minimum.\
+2. Servo motor: 15kg+ torque, 100°+ rotation minimum.\
   <img src="images/servo.png" alt="servo" width="200"/>
-* **NodeMCU ESP8266:** [Arduino store](https://store.arduino.cc/products/nodemcu-esp8266).\
+1. NodeMCU ESP8266: [Arduino store](https://store.arduino.cc/products/nodemcu-esp8266).\
   <img src="images/node-mcu.png" alt="nodemcu-board" width="200"/>
-* **Optional:**
-  * 9-12V Power supply adapter. (Only if you have the breadboard and you would like to power your heater with it, get rid of batteries)
-  * Nodemcu breadboard.\
+
+**Optional:**
+  1. 9-12V Power supply adapter. (Only if you have the breadboard and you would like to power your heater with it, get rid of batteries)
+  2. Nodemcu breadboard.\
   <img src="images/node-mcu-breadboard.png" alt="breadboard" width="200"/>
-  * Toggle switch with center-off position.\
+  1. Toggle switch with center-off position.\
   <img src="images/on-off-on.png" alt="toggle switch" width="200"/>
-  * LED indicator lights.\
+  1. LED indicator lights.\
    <img src="images/led-diode.png" alt="led" width="200"/>
 
 **Requirements:**
