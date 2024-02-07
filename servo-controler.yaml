@@ -1,0 +1,168 @@
+esphome:
+  name: gas-heater
+  friendly_name: Gas heater
+
+#could be a different board then.
+esp8266:
+  board: esp01_1m
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "0xxxxxxxxxxxxxxxxxxxxxxxx"
+
+ota:
+  password: "xxxxxxxxxxxxxxxxxxxxxxxx"
+
+wifi:
+  #configured by your EspHome integration automatically
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Gas-Heater Fallback Hotspot"
+    password: "qCrQ6VN7L0ut"
+
+globals:
+  - id: servo_position
+    type: float
+    restore_value: no
+    initial_value: "50"
+
+number:
+  - platform: template
+    name: "Servo Position"
+    id: servo_position_number
+    icon: mdi:fire
+    unit_of_measurement: "P"
+    optimistic: true
+    min_value: 0
+    max_value: 100
+    step: 1
+    mode: box
+    initial_value: 50
+    on_value:
+      then:
+        - lambda: |-
+            id(servo_position) = (int)(x - 20) * 1.25;
+            id(servo_position) = clamp(id(servo_position), (float)-20, (float)100);
+            id(my_servo).write(id(servo_position) / 100);
+            id(light_1).turn_on();
+            id(light_2).turn_on();
+            delay(250);
+            id(light_1).turn_off();
+            id(light_2).turn_off();
+
+sensor:
+  -  platform: adc
+     id: source_sensor
+     pin: A0
+     update_interval: 3s
+
+  - platform: resistance
+    sensor: source_sensor
+    configuration: DOWNSTREAM
+    resistor: 5.0kOhm
+    reference_voltage:  3.3V
+    id: resistance_sensor
+    
+  - platform: ntc
+    sensor: resistance_sensor
+    calibration:
+      - 5.6kOhm -> 75°C
+      - 96.219kOhm -> 10°C
+      - 28.674kOhm -> 45°C
+    filters:
+      - offset: -50
+    name: NTC Temperature
+
+servo:
+  - id: my_servo
+    output: servo_motor
+    transition_length: 2s
+
+output:
+  - platform: esp8266_pwm
+    id: servo_motor
+    pin: GPIO13 #D7
+    frequency: 50 Hz
+  - id: light_1
+    platform: gpio
+    pin: GPIO0 #D3
+    inverted: false
+  - id: light_2
+    platform: gpio
+    pin: GPIO2 #D4
+    inverted: false
+
+###################### Exclude if you want to only control the servo using home assistant ######################
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO14 #D5
+      mode:
+          input: true
+          pullup: true
+      inverted: true
+    name: "Button 1"
+    id: "button1"
+  - platform: gpio
+    pin:
+      number: GPIO5 #D1
+      mode:
+          input: true
+          pullup: true
+      inverted: true
+    name: "Button 2"
+    id: "button2"
+  - platform: gpio 
+    id: "button3"
+    name: "Button 3"
+    pin:
+      number: GPIO4 #D2
+      mode:
+          input: true
+          pullup: true
+      inverted: true
+  - platform: gpio
+    id: "button4"
+    name: "Button 4"
+    pin:
+      number: GPIO12 #D6
+      mode:
+          input: true
+          pullup: true
+      inverted: true
+
+
+interval:
+  - interval: 500ms
+    then:
+      - lambda: |-
+          if (id(button1).state) {
+            if (id(servo_position) < 100) {
+              id(servo_position_number).publish_state(id(servo_position_number).state + 2);
+              delay(250);
+            }
+          } else if (id(button2).state) {
+            if (id(servo_position) > -20) {
+              id(servo_position_number).publish_state(id(servo_position_number).state - 2);
+              delay(250);
+            }
+          } else if (id(button3).state) {
+            if (id(servo_position) < 100) {
+              id(servo_position_number).publish_state(id(servo_position_number).state + 2);
+              delay(250);
+            }
+          } else if (id(button4).state) {
+            if (id(servo_position) > -20) {
+              id(servo_position_number).publish_state(id(servo_position_number).state - 2);
+              delay(250);
+            }
+          }
+###################### Exclude if you want to only control the servo using home assistant ######################
+
+captive_portal:
+    
